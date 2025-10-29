@@ -1,0 +1,182 @@
+.disponibilite-salles {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.controls-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filters {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  min-width: 150px;
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.disponibilite-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+.salle-header {
+  min-width: 250px;
+}
+
+.salle-info {
+  min-width: 250px;
+  padding: 1rem !important;
+}
+
+.salle-nom {
+  margin-bottom: 0.5rem;
+}
+
+.salle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.salle-equipements {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: #888;
+}
+
+.statut-cell.libre {
+  background: #d4edda;
+}
+
+.statut-cell.occupee {
+  background: #fff3cd;
+}
+
+.occupation-details {
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.occupation-count {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.occupation-times {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.time-slot {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+}
+
+.more-times {
+  font-size: 0.6rem;
+  color: #666;
+  font-style: italic;
+}
+
+.libre-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #155724;
+}
+
+.summary-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.type-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.type-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.type-name {
+  font-weight: 500;
+}
+
+.type-count {
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.couleur-legende.libre {
+  background: #d4edda;
+}
+
+.couleur-legende.occupee {
+  background: #fff3cd;
+}

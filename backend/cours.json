@@ -1,0 +1,8 @@
+{
+  "date_seance": "2025-01-30T09:30:00",
+  "type_seance": "cours",
+  "duree": 120,
+  "salle_id": 1,
+  "matiere": "Informatique",
+  "enseignant_id": 1
+}

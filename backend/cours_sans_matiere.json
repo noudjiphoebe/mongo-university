@@ -1,0 +1,8 @@
+{
+  "enseignant_id": 1,
+  "salle_id": 1,
+  "filiere_id": 1,
+  "date_debut": "2025-01-30T09:30:00",
+  "date_fin": "2025-01-30T11:30:00",
+  "type_seance": "cours"
+}
