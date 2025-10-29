@@ -1,16 +1,17 @@
 # Système de Gestion Universitaire
 
-## ⚠️ Note importante
-Ce projet utilise **MariaDB/MySQL** comme base de données relationnelle.
-Le nom "mongo-university" est historique.
-
-## 🚀 URLs de l'application
-- **Frontend** : http://localhost:3001
-- **Backend API** : http://localhost:3000
-- **Base de données** : MariaDB
-
-## 🛠️ Technologies
-- Backend: Node.js + Express
-- Frontend: Vite
+## Technologies
+- Backend: Node.js + Express (port 3000)
+- Frontend: Vite (port 3001)  
 - Database: MariaDB/MySQL
-- Ports: 3000 (API), 3001 (Interface)
+
+## URLs
+- Frontend: http://localhost:3001
+- API: http://localhost:3000
+
+## Installation
+```bash
+cd backend && npm install && npm run dev
+cd frontend && npm install && npm run dev
+```
+
