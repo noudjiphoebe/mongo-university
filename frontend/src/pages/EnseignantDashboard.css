@@ -1,0 +1,47 @@
+.enseignant-dashboard {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.enseignant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.enseignant-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #27ae60;
+  text-align: center;
+}
+
+.enseignant-card h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.enseignant-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.enseignant-card .btn {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .enseignant-dashboard {
+    padding: 1rem;
+  }
+  
+  .enseignant-grid {
+    grid-template-columns: 1fr;
+  }
+}

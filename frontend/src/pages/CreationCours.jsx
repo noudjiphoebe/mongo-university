@@ -78,7 +78,20 @@ function CreationCours() {
         observations: formData.observations
       }
 
+      // ⭐⭐ CONSOLE.LOG AJOUTÉS ICI ⭐⭐
+      console.log('=== DONNÉES ENVOYÉES VERS BACKEND ===')
+      console.log('Données complètes:', coursData)
+      console.log('URL de la requête:', '/api/cours')
+      console.log('Type de date_debut:', typeof coursData.date_debut, coursData.date_debut)
+      console.log('Type de date_fin:', typeof coursData.date_fin, coursData.date_fin)
+      console.log('==============================')
+
       const response = await axios.post('/api/cours', coursData)
+      
+      // ⭐⭐ CONSOLE.LOG AJOUTÉS ICI ⭐⭐
+      console.log('=== RÉPONSE DU BACKEND ===')
+      console.log('Réponse:', response.data)
+      console.log('===========================')
       
       setSuccess('Cours créé avec succès!')
       
@@ -101,7 +114,13 @@ function CreationCours() {
       }, 2000)
 
     } catch (error) {
-      console.error('Erreur création cours:', error)
+      // ⭐⭐ CONSOLE.LOG AJOUTÉS ICI ⭐⭐
+      console.log('=== ERREUR DÉTAILLÉE ===')
+      console.log('Status:', error.response?.status)
+      console.log('Message d\'erreur:', error.response?.data)
+      console.log('Erreur complète:', error)
+      console.log('========================')
+      
       setError(error.response?.data?.error || 'Erreur lors de la création du cours')
     } finally {
       setLoading(false)

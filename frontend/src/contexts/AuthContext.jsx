@@ -24,10 +24,14 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/auth/login', {
-        email,
-        mot_de_passe: password
+      console.log('🔄 Tentative de connexion:', { email, password });
+      
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
+        email: email,
+        password: password  // CORRECTION: utiliser "password" au lieu de "mot_de_passe"
       })
+
+      console.log('✅ Réponse du serveur:', response.data);
 
       const { token, user } = response.data
       
@@ -38,6 +42,12 @@ export function AuthProvider({ children }) {
       
       return { success: true }
     } catch (error) {
+      console.error('❌ Erreur de connexion:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      
       return { 
         success: false, 
         message: error.response?.data?.error || 'Erreur de connexion' 

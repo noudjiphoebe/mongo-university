@@ -1,0 +1,52 @@
+.etudiant-dashboard {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.etudiant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.etudiant-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #9b59b6;
+  text-align: center;
+}
+
+.etudiant-card h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.etudiant-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.etudiant-card .btn {
+  width: 100%;
+}
+
+.etudiant-card .btn:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .etudiant-dashboard {
+    padding: 1rem;
+  }
+  
+  .etudiant-grid {
+    grid-template-columns: 1fr;
+  }
+}

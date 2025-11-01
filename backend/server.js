@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_jwt';
 
 // Configuration MariaDB
@@ -51,7 +51,7 @@ const authenticateToken = (req, res, next) => {
 // Middleware d'authorisation
 const authorize = (roles = []) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        if (!req.user || !roles.includes(req.user.role)) {
             return res.status(403).json({ error: 'Accès non autorisé' });
         }
         next();
@@ -76,12 +76,17 @@ async function connectDatabase() {
 
 // ==================== ROUTES D'AUTHENTIFICATION ====================
 
-// Login
+// Login avec support pour 'password' et 'mot_de_passe'
 app.post('/api/auth/login', async (req, res) => {
     try {
-        const { email, mot_de_passe } = req.body;
+        const { email, password, mot_de_passe } = req.body;
         
-        if (!email || !mot_de_passe) {
+        console.log('🔐 Tentative de login reçue:', { email, password, mot_de_passe });
+        
+        // Utiliser 'password' ou 'mot_de_passe' selon ce qui est envoyé
+        const motDePasseSaisi = password || mot_de_passe;
+        
+        if (!email || !motDePasseSaisi) {
             return res.status(400).json({ error: 'Email et mot de passe requis' });
         }
 
@@ -92,13 +97,33 @@ app.post('/api/auth/login', async (req, res) => {
         );
         conn.release();
 
+        console.log('👤 Utilisateur trouvé:', user ? 'OUI' : 'NON');
+
         if (!user) {
             return res.status(401).json({ error: 'Identifiants invalides' });
         }
 
-        // Vérifier le mot de passe (dans un cas réel, utiliser bcrypt.compare)
-        // Pour le moment, on suppose que le mot de passe est en clair pour les tests
-        if (mot_de_passe === 'admin123' || mot_de_passe === user.mot_de_passe) {
+        // MOT DE PASSE UNIQUE PAR RÔLE
+        let motDePasseCorrect = '';
+        
+        switch(user.role) {
+            case 'admin':
+                motDePasseCorrect = 'admin123';
+                break;
+            case 'enseignant':
+                motDePasseCorrect = 'enseignant123';
+                break;
+            case 'etudiant':
+                motDePasseCorrect = 'etudiant123';
+                break;
+            default:
+                motDePasseCorrect = '';
+        }
+
+        console.log(`🔑 Rôle: ${user.role}, Mot de passe attendu: ${motDePasseCorrect}, Saisi: ${motDePasseSaisi}`);
+
+        // Vérifier le mot de passe
+        if (motDePasseSaisi === motDePasseCorrect) {
             const token = jwt.sign(
                 { 
                     id: user.id, 
@@ -111,6 +136,8 @@ app.post('/api/auth/login', async (req, res) => {
                 { expiresIn: '24h' }
             );
 
+            console.log('✅ Login réussi pour:', email);
+            
             res.json({
                 token,
                 user: {
@@ -122,10 +149,147 @@ app.post('/api/auth/login', async (req, res) => {
                 }
             });
         } else {
+            console.log('❌ Mot de passe incorrect');
             res.status(401).json({ error: 'Identifiants invalides' });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('💥 Erreur login:', error);
+        res.status(500).json({ error: 'Erreur serveur lors de la connexion' });
+    }
+});
+
+// ==================== ROUTES EMPLOI DU TEMPS ====================
+
+// Emploi du temps pour enseignant - TOUS LES COURS
+app.get('/api/emploi-du-temps/enseignant', authenticateToken, async (req, res) => {
+    try {
+        const conn = await pool.getConnection();
+
+        // L'enseignant unique voit TOUS les cours
+        const emploiDuTemps = await conn.query(`
+            SELECT 
+                c.id,
+                m.nom as cours,
+                m.code as code_cours,
+                c.date_debut,
+                c.date_fin,
+                c.type_seance,
+                s.nom as salle,
+                b.nom as batiment,
+                u.nom as enseignant_nom,
+                u.prenom as enseignant_prenom,
+                fil.nom as filiere,
+                d.nom as departement,
+                fac.nom as faculte,
+                c.statut
+            FROM cours c
+            JOIN matiere m ON c.matiere_id = m.id
+            JOIN salle s ON c.salle_id = s.id
+            JOIN batiment b ON s.batiment_id = b.id
+            JOIN enseignant e ON c.enseignant_id = e.id
+            JOIN utilisateur u ON e.utilisateur_id = u.id
+            JOIN filiere fil ON c.filiere_id = fil.id
+            JOIN departement d ON fil.departement_id = d.id
+            JOIN faculte fac ON d.faculte_id = fac.id
+            WHERE c.statut != 'annule'
+            ORDER BY c.date_debut
+            LIMIT 50
+        `);
+
+        conn.release();
+        
+        res.json(emploiDuTemps);
+    } catch (error) {
+        console.error('Erreur emploi du temps enseignant:', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// Emploi du temps pour étudiant - TOUS LES COURS
+app.get('/api/emploi-du-temps/etudiant', authenticateToken, async (req, res) => {
+    try {
+        const conn = await pool.getConnection();
+        
+        // L'étudiant unique voit TOUS les cours
+        const emploiDuTemps = await conn.query(`
+            SELECT 
+                c.id,
+                m.nom as cours,
+                m.code as code_cours,
+                c.date_debut,
+                c.date_fin,
+                c.type_seance,
+                s.nom as salle,
+                b.nom as batiment,
+                u.nom as enseignant_nom,
+                u.prenom as enseignant_prenom,
+                fil.nom as filiere,
+                d.nom as departement,
+                fac.nom as faculte,
+                c.statut
+            FROM cours c
+            JOIN matiere m ON c.matiere_id = m.id
+            JOIN salle s ON c.salle_id = s.id
+            JOIN batiment b ON s.batiment_id = b.id
+            JOIN enseignant e ON c.enseignant_id = e.id
+            JOIN utilisateur u ON e.utilisateur_id = u.id
+            JOIN filiere fil ON c.filiere_id = fil.id
+            JOIN departement d ON fil.departement_id = d.id
+            JOIN faculte fac ON d.faculte_id = fac.id
+            WHERE c.statut != 'annule'
+            ORDER BY c.date_debut
+            LIMIT 50
+        `);
+
+        conn.release();
+        
+        res.json(emploiDuTemps);
+    } catch (error) {
+        console.error('Erreur emploi du temps étudiant:', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// Emploi du temps admin (tous les cours)
+app.get('/api/emploi-du-temps/admin', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        const conn = await pool.getConnection();
+        
+        const emploiDuTemps = await conn.query(`
+            SELECT 
+                c.id,
+                m.nom as cours,
+                m.code as code_cours,
+                c.date_debut,
+                c.date_fin,
+                c.type_seance,
+                s.nom as salle,
+                b.nom as batiment,
+                u.nom as enseignant_nom,
+                u.prenom as enseignant_prenom,
+                fil.nom as filiere,
+                d.nom as departement,
+                fac.nom as faculte,
+                c.statut
+            FROM cours c
+            JOIN matiere m ON c.matiere_id = m.id
+            JOIN salle s ON c.salle_id = s.id
+            JOIN batiment b ON s.batiment_id = b.id
+            JOIN enseignant e ON c.enseignant_id = e.id
+            JOIN utilisateur u ON e.utilisateur_id = u.id
+            JOIN filiere fil ON c.filiere_id = fil.id
+            JOIN departement d ON fil.departement_id = d.id
+            JOIN faculte fac ON d.faculte_id = fac.id
+            WHERE c.statut != 'annule'
+            ORDER BY c.date_debut
+        `);
+
+        conn.release();
+        
+        res.json(emploiDuTemps);
+    } catch (error) {
+        console.error('Erreur emploi du temps admin:', error);
+        res.status(500).json({ error: 'Erreur serveur' });
     }
 });
 
@@ -685,7 +849,12 @@ app.get('/', (req, res) => {
             enseignants: '/api/enseignants',
             indisponibilites: '/api/indisponibilites',
             statistiques: '/api/statistiques',
-            publications: '/api/publications'
+            publications: '/api/publications',
+            emploiDuTemps: {
+                enseignant: '/api/emploi-du-temps/enseignant',
+                etudiant: '/api/emploi-du-temps/etudiant',
+                admin: '/api/emploi-du-temps/admin'
+            }
         }
     });
 });
@@ -713,6 +882,10 @@ async function initializeServer() {
         console.log(`📍 URL: http://localhost:${PORT}`);
         console.log(`📊 Base de données: ${dbConnected ? 'MariaDB (Connectée)' : 'Non connectée'}`);
         console.log('💡 API de gestion universitaire prête !');
+        console.log('👥 Comptes de test disponibles:');
+        console.log('   - Admin: admin@univ-mongo.com / admin123');
+        console.log('   - Enseignant: enseignant@univ-mongo.com / enseignant123');
+        console.log('   - Étudiant: etudiant@univ-mongo.com / etudiant123');
     });
 }
 
