@@ -754,78 +754,142 @@ app.put('/api/cours/:id', authenticateToken, authorize(['admin']), async (req, r
     }
 });
 
-// ==================== ROUTES STATISTIQUES ====================
+// ==================== NOUVELLES ROUTES STATISTIQUES ====================
 
-// Get dashboard statistics
-app.get('/api/statistiques', authenticateToken, async (req, res) => {
-    try {
-        const conn = await pool.getConnection();
-        
-        const [totalCours] = await conn.query('SELECT COUNT(*) as total FROM cours WHERE statut != "annule"');
-        const [coursPlanifies] = await conn.query('SELECT COUNT(*) as total FROM cours WHERE statut = "planifie"');
-        const [coursConfirmes] = await conn.query('SELECT COUNT(*) as total FROM cours WHERE statut = "confirme"');
-        const [totalEnseignants] = await conn.query('SELECT COUNT(*) as total FROM enseignant WHERE actif = TRUE');
-        const [totalSalles] = await conn.query('SELECT COUNT(*) as total FROM salle');
-        const [totalFilieres] = await conn.query('SELECT COUNT(*) as total FROM filiere');
+// Routes pour les nouvelles statistiques
+app.get('/api/stats', authenticateToken, async (req, res) => {
+  try {
+    console.log('📊 Chargement des statistiques...');
+    
+    const conn = await pool.getConnection();
+    
+    const [
+      users,
+      teachers, 
+      courses,
+      classrooms,
+      upcoming
+    ] = await Promise.all([
+      conn.query('SELECT COUNT(*) as count FROM utilisateur WHERE role = "etudiant"'),
+      conn.query('SELECT COUNT(*) as count FROM enseignant WHERE actif = TRUE'),
+      conn.query('SELECT COUNT(*) as count FROM matiere'),
+      conn.query('SELECT COUNT(*) as count FROM cours WHERE statut = "confirme"'),
+      conn.query('SELECT COUNT(*) as count FROM cours WHERE date_debut > NOW() AND statut = "confirme"')
+    ]);
 
-        const stats = {
-            totalCours: totalCours.total,
-            coursPlanifies: coursPlanifies.total,
-            coursConfirmes: coursConfirmes.total,
-            totalEnseignants: totalEnseignants.total,
-            totalSalles: totalSalles.total,
-            totalFilieres: totalFilieres.total
-        };
+    const stats = {
+      totalStudents: users[0].count || 0,
+      totalTeachers: teachers[0].count || 0,
+      totalCourses: courses[0].count || 0,
+      totalClasses: classrooms[0].count || 0,
+      upcomingCourses: upcoming[0].count || 0
+    };
 
-        conn.release();
-        res.json(stats);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    conn.release();
+    console.log('✅ Statistiques chargées:', stats);
+    res.json(stats);
+    
+  } catch (error) {
+    console.error('❌ Erreur statistiques:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors du chargement des statistiques',
+      details: error.message 
+    });
+  }
 });
 
-// ==================== ROUTES PUBLICATION EMPLOI DU TEMPS ====================
+// ==================== NOUVELLES ROUTES UTILISATEURS ====================
 
-// Get published schedules
-app.get('/api/publications', async (req, res) => {
-    try {
-        const { filiere_id, annee_academique, semestre } = req.query;
-        
-        let query = `
-            SELECT p.*, f.nom as filiere_nom, u.nom as publie_par_nom
-            FROM publication_emploi_du_temps p
-            JOIN filiere f ON p.filiere_id = f.id
-            LEFT JOIN utilisateur u ON p.publie_par = u.id
-            WHERE p.statut = 'publie'
-        `;
-        
-        const params = [];
+// Get all users with details (admin only)
+app.get('/api/users', authenticateToken, authorize(['admin']), async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    const users = await conn.query(`
+      SELECT u.*, e.matricule, e.specialite 
+      FROM utilisateur u 
+      LEFT JOIN enseignant e ON u.id = e.utilisateur_id 
+      ORDER BY u.date_creation DESC
+    `);
+    conn.release();
+    res.json(users);
+  } catch (error) {
+    console.error('Erreur récupération utilisateurs:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
 
-        if (filiere_id) {
-            query += ' AND p.filiere_id = ?';
-            params.push(filiere_id);
-        }
+// Delete user (admin only)
+app.delete('/api/users/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const conn = await pool.getConnection();
+    await conn.query('DELETE FROM utilisateur WHERE id = ?', [id]);
+    conn.release();
+    res.json({ message: 'Utilisateur supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur suppression utilisateur:', error);
+    res.status(500).json({ error: 'Erreur lors de la suppression' });
+  }
+});
 
-        if (annee_academique) {
-            query += ' AND p.annee_academique = ?';
-            params.push(annee_academique);
-        }
+// ==================== NOUVELLES ROUTES COURS ====================
 
-        if (semestre) {
-            query += ' AND p.semestre = ?';
-            params.push(semestre);
-        }
+// Get all courses with full details
+app.get('/api/courses', authenticateToken, async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    const courses = await conn.query(`
+      SELECT c.*, m.nom as matiere_nom, f.nom as filiere_nom,
+             CONCAT(u.nom, ' ', u.prenom) as enseignant_nom,
+             s.nom as salle_nom
+      FROM cours c
+      JOIN matiere m ON c.matiere_id = m.id
+      JOIN filiere f ON c.filiere_id = f.id
+      JOIN enseignant e ON c.enseignant_id = e.id
+      JOIN utilisateur u ON e.utilisateur_id = u.id
+      JOIN salle s ON c.salle_id = s.id
+      ORDER BY c.date_debut DESC
+    `);
+    conn.release();
+    res.json(courses);
+  } catch (error) {
+    console.error('Erreur récupération cours:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
 
-        query += ' ORDER BY p.date_publication DESC';
+// Delete course (admin only)
+app.delete('/api/courses/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const conn = await pool.getConnection();
+    await conn.query('DELETE FROM cours WHERE id = ?', [id]);
+    conn.release();
+    res.json({ message: 'Cours supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur suppression cours:', error);
+    res.status(500).json({ error: 'Erreur lors de la suppression' });
+  }
+});
 
-        const conn = await pool.getConnection();
-        const publications = await conn.query(query, params);
-        conn.release();
-        
-        res.json(publications);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+// Update course (admin only)
+app.put('/api/courses/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date_debut, date_fin, salle_id, type_seance } = req.body;
+    
+    const conn = await pool.getConnection();
+    await conn.query(
+      'UPDATE cours SET date_debut = ?, date_fin = ?, salle_id = ?, type_seance = ? WHERE id = ?',
+      [date_debut, date_fin, salle_id, type_seance, id]
+    );
+    
+    conn.release();
+    res.json({ message: 'Cours modifié avec succès' });
+  } catch (error) {
+    console.error('Erreur modification cours:', error);
+    res.status(500).json({ error: 'Erreur lors de la modification' });
+  }
 });
 
 // ==================== ROUTE RACINE ====================
@@ -848,12 +912,16 @@ app.get('/', (req, res) => {
             cours: '/api/cours',
             enseignants: '/api/enseignants',
             indisponibilites: '/api/indisponibilites',
-            statistiques: '/api/statistiques',
+            statistiques: '/api/stats',
             publications: '/api/publications',
             emploiDuTemps: {
                 enseignant: '/api/emploi-du-temps/enseignant',
                 etudiant: '/api/emploi-du-temps/etudiant',
                 admin: '/api/emploi-du-temps/admin'
+            },
+            nouvellesRoutes: {
+                users: '/api/users',
+                courses: '/api/courses'
             }
         }
     });

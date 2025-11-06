@@ -196,203 +196,112 @@ CREATE TABLE configuration (
     date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- ==================== INSERTION DES DONNÉES UPM ====================
+-- ==================== INSERTION DES DONNÉES DE BASE ====================
 
--- 1. Facultés UPM
+-- 1. Facultés
 INSERT INTO faculte (nom, code, description, actif) VALUES
 ('Sciences et Technologies', 'FST', 'Faculté des Sciences et Technologies', TRUE),
 ('Génie Civil et Architecture', 'FGCA', 'Faculté de Génie Civil et Architecture', TRUE),
-('Génie Géologique et Minier', 'FGGM', 'Faculté de Génie Géologique et Minier', TRUE),
-('Génie Mécanique et Energétique', 'FGME', 'Faculté de Génie Mécanique et Energétique', TRUE),
-('Génie Industriel et Maintenance', 'FGIM', 'Faculté de Génie Industriel et Maintenance', TRUE);
+('Génie Géologique et Minier', 'FGGM', 'Faculté de Génie Géologique et Minier', TRUE);
 
 -- 2. Départements
 INSERT INTO departement (faculte_id, nom, code, description, actif) VALUES
 (1, 'Sciences Fondamentales', 'SF', 'Département des Sciences Fondamentales', TRUE),
-(2, 'Génie Civil', 'GC', 'Département de Génie Civil', TRUE),
-(3, 'Génie Géologique', 'GG', 'Département de Génie Géologique', TRUE),
-(4, 'Génie Mécanique', 'GM', 'Département de Génie Mécanique', TRUE),
-(5, 'Génie Industriel', 'GI', 'Département de Génie Industriel', TRUE);
+(1, 'Informatique', 'INFO', 'Département d Informatique', TRUE),
+(3, 'Génie Géologique', 'GG', 'Département de Génie Géologique', TRUE);
 
--- 3. Filières par département
-INSERT INTO filiere (departement_id, nom, code, duree_etudes, description, actif) VALUES
--- Sciences Fondamentales
-(1, 'Licence Sciences Fondamentales', 'LSF', 3, 'Licence en Sciences Fondamentales', TRUE),
+-- 3. Filières existantes + nouvelles
+INSERT INTO filiere (departement_id, nom, code, duree_etudes, description) VALUES
+(2, 'Licence en Informatique', 'LIC-INFO', 3, 'Licence en Informatique'),
+(1, 'Licence Mathématiques-Physique', 'LMP', 3, 'Licence double compétence Maths-Physique'),
+(3, 'Licence Hydrogéologie', 'LHG', 3, 'Licence en Hydrogéologie');
 
--- Génie Civil
-(2, 'Licence Génie Civil', 'LGC', 3, 'Licence en Génie Civil', TRUE),
-(2, 'Master Génie Civil', 'MGC', 2, 'Master en Génie Civil', TRUE),
-
--- Génie Géologique
-(3, 'Licence Génie Géologique', 'LGG', 3, 'Licence en Génie Géologique', TRUE),
-(3, 'Master Génie Minier', 'MGM', 2, 'Master en Génie Minier', TRUE),
-
--- Génie Mécanique
-(4, 'Licence Génie Mécanique', 'LGM', 3, 'Licence en Génie Mécanique', TRUE),
-(4, 'Master Energétique', 'MEN', 2, 'Master en Energétique', TRUE),
-
--- Génie Industriel
-(5, 'Licence Génie Industriel', 'LGI', 3, 'Licence en Génie Industriel', TRUE),
-(5, 'Master Maintenance Industrielle', 'MMI', 2, 'Master en Maintenance Industrielle', TRUE);
-
--- 4. Utilisateurs UPM
+-- 4. Utilisateurs de base + nouveaux
 INSERT INTO utilisateur (email, mot_de_passe, role, nom, prenom, actif) VALUES
 ('admin@upm.mg', 'admin123', 'admin', 'Administrateur', 'UPM', TRUE),
-('enseignant@upm.mg', 'enseignant123', 'enseignant', 'Enseignant', 'UPM', TRUE),
+('enseignant@upm.mg', 'enseignant123', 'enseignant', 'Dupont', 'Jean', TRUE),
 ('etudiant@upm.mg', 'etudiant123', 'etudiant', 'Étudiant', 'UPM', TRUE),
-('prof.math@upm.mg', 'enseignant123', 'enseignant', 'Rakoto', 'Jean', TRUE),
-('prof.physique@upm.mg', 'enseignant123', 'enseignant', 'Rasoa', 'Marie', TRUE),
-('prof.chimie@upm.mg', 'enseignant123', 'enseignant', 'Randria', 'Pierre', TRUE),
-('prof.gcivil@upm.mg', 'enseignant123', 'enseignant', 'Rabe', 'Joseph', TRUE),
-('prof.geologie@upm.mg', 'enseignant123', 'enseignant', 'Ranaivo', 'Luc', TRUE),
-('prof.mecanique@upm.mg', 'enseignant123', 'enseignant', 'Rajson', 'Henri', TRUE),
-('prof.industriel@upm.mg', 'enseignant123', 'enseignant', 'Ralison', 'Paul', TRUE);
+-- Nouveaux enseignants ajoutés
+('rakoto.math@upm.mg', 'enseignant123', 'enseignant', 'Rakoto', 'Jean Claude', TRUE),
+('rabe.physique@upm.mg', 'enseignant123', 'enseignant', 'Rabe', 'Marie Louise', TRUE),
+('randria.chimie@upm.mg', 'enseignant123', 'enseignant', 'Randria', 'Pierre Paul', TRUE),
+('rasoa.bio@upm.mg', 'enseignant123', 'enseignant', 'Rasoa', 'Juliette', TRUE),
+('ralison.info@upm.mg', 'enseignant123', 'enseignant', 'Ralison', 'Marc', TRUE),
+('rajaona.geo@upm.mg', 'enseignant123', 'enseignant', 'Rajaona', 'Albert', TRUE),
+('ramanana.minier@upm.mg', 'enseignant123', 'enseignant', 'Ramanana', 'Sophie', TRUE),
+('randriana.hydro@upm.mg', 'enseignant123', 'enseignant', 'Randriana', 'Henri', TRUE),
+('rakotobe.petrol@upm.mg', 'enseignant123', 'enseignant', 'Rakotobe', 'David', TRUE);
 
--- 5. Enseignants UPM
-INSERT INTO enseignant (utilisateur_id, matricule, specialite, grade, actif) VALUES
-(4, 'ENS001', 'Toutes les matières', 'professeur', TRUE),
-(5, 'ENS002', 'Mathématiques', 'professeur', TRUE),
-(6, 'ENS003', 'Physique', 'maitre_assistant', TRUE),
-(7, 'ENS004', 'Chimie', 'maitre_assistant', TRUE),
-(8, 'ENS005', 'Génie Civil', 'professeur', TRUE),
-(9, 'ENS006', 'Géologie', 'professeur', TRUE),
-(10, 'ENS007', 'Génie Mécanique', 'maitre_assistant', TRUE),
-(11, 'ENS008', 'Génie Industriel', 'maitre_assistant', TRUE);
+-- 5. Enseignants existants + nouveaux
+INSERT INTO enseignant (utilisateur_id, matricule, specialite, grade, telephone, bureau, actif) VALUES
+(2, 'PROF001', 'Informatique', 'professeur', '+261 34 00 000 01', 'Bâtiment Principal Bureau 101', TRUE),
+(4, 'ENS003', 'Mathématiques Appliquées', 'professeur', '+261 34 12 345 67', 'BAT-A Bureau 201', TRUE),
+(5, 'ENS004', 'Physique Quantique', 'maitre_assistant', '+261 34 12 345 68', 'BAT-A Bureau 202', TRUE),
+(6, 'ENS005', 'Chimie Organique', 'maitre_assistant', '+261 34 12 345 69', 'BAT-A Bureau 203', TRUE),
+(7, 'ENS006', 'Biologie Moléculaire', 'assistant', '+261 34 12 345 70', 'BAT-A Bureau 204', TRUE),
+(8, 'ENS007', 'Informatique Avancée', 'maitre_assistant', '+261 34 12 345 71', 'BAT-A Bureau 205', TRUE),
+(9, 'ENS008', 'Géologie Structurale', 'professeur', '+261 34 12 345 72', 'BAT-B Bureau 101', TRUE),
+(10, 'ENS009', 'Génie Minier', 'professeur', '+261 34 12 345 73', 'BAT-B Bureau 102', TRUE),
+(11, 'ENS010', 'Hydrogéologie', 'maitre_assistant', '+261 34 12 345 74', 'BAT-B Bureau 103', TRUE),
+(12, 'ENS011', 'Géologie Pétrolière', 'professeur', '+261 34 12 345 75', 'BAT-B Bureau 104', TRUE);
 
--- 6. Bâtiments UPM
+-- 6. Bâtiments
 INSERT INTO batiment (nom, code, adresse, nombre_etages, description, actif) VALUES
-('Bâtiment Principal - Sciences', 'BPS', 'Campus Central UPM', 4, 'Bâtiment principal des sciences', TRUE),
-('Bâtiment Génie Civil', 'BGC', 'Campus Nord UPM', 3, 'Bâtiment dédié au génie civil', TRUE),
-('Bâtiment Géologie', 'BGG', 'Campus Est UPM', 3, 'Bâtiment des sciences de la terre', TRUE),
-('Bâtiment Mécanique', 'BGM', 'Campus Ouest UPM', 3, 'Ateliers et laboratoires mécaniques', TRUE),
-('Bâtiment Industriel', 'BGI', 'Campus Sud UPM', 3, 'Bâtiment du génie industriel', TRUE),
-('Amphithéâtre Central', 'AMPHI', 'Campus Central UPM', 1, 'Grand amphithéâtre de 500 places', TRUE),
-('Bibliothèque Universitaire', 'BU', 'Campus Central UPM', 2, 'Bibliothèque centrale UPM', TRUE);
+('Bâtiment Principal', 'BAT-PRINC', 'Campus Central UPM', 4, 'Bâtiment principal de l université', TRUE),
+('Bâtiment A - Sciences', 'BAT-A', 'Campus Central UPM', 3, 'Bâtiment A des sciences fondamentales', TRUE),
+('Bâtiment B - Sciences Avancées', 'BAT-B', 'Campus Central UPM', 3, 'Bâtiment B des sciences avancées', TRUE);
 
--- 7. Salles par bâtiment
-INSERT INTO salle (batiment_id, nom, code, type_salle, capacite, equipements, actif) VALUES
--- Bâtiment Principal Sciences
-(1, 'Amphithéâtre A', 'BPS-A1', 'amphitheatre', 200, 'Vidéoprojecteur, sonorisation', TRUE),
-(1, 'Laboratoire Physique', 'BPS-L1', 'laboratoire', 30, 'Appareils de mesure, ordinateurs', TRUE),
-(1, 'Laboratoire Chimie', 'BPS-L2', 'laboratoire', 30, 'Hottes, produits chimiques', TRUE),
-(1, 'Salle Informatique', 'BPS-SI1', 'informatique', 40, '30 ordinateurs, réseau', TRUE),
+-- 7. Salles existantes + nouvelles
+INSERT INTO salle (batiment_id, nom, capacite, type_salle, equipements, etage, actif) VALUES
+(1, 'Amphi 100', 100, 'amphitheatre', 'Vidéoprojecteur, micro', 1, TRUE),
+(1, 'Salle 101', 30, 'cours', 'Tableau blanc, vidéoprojecteur', 1, TRUE),
+(1, 'Labo Info 201', 25, 'informatique', '20 ordinateurs, réseau', 2, TRUE),
+-- Nouvelles salles ajoutées
+(1, 'Salle 102', 30, 'cours', 'Vidéoprojecteur, tableau blanc', 1, TRUE),
+(1, 'Salle 103', 25, 'cours', 'Vidéoprojecteur, climatisation', 1, TRUE),
+(1, 'Labo Physique 202', 20, 'laboratoire', 'Appareils de mesure', 2, TRUE),
+(1, 'Labo Chimie 203', 20, 'laboratoire', 'Hottes, produits chimiques', 2, TRUE),
+(1, 'Salle 301', 40, 'cours', 'Vidéoprojecteur, tableau interactif', 3, TRUE);
 
--- Bâtiment Génie Civil
-(2, 'Atelier Construction', 'BGC-A1', 'atelier', 25, 'Matériaux, outils de construction', TRUE),
-(2, 'Laboratoire Matériaux', 'BGC-L1', 'laboratoire', 20, 'Presses, fours, microscopes', TRUE),
-(2, 'Salle de Dessin', 'BGC-SD1', 'salle_cours', 30, 'Tables à dessin, CAO', TRUE),
+-- 8. Matières existantes + nouvelles
+INSERT INTO matiere (filiere_id, nom, code, semestre, credits, enseignant_responsable_id, description) VALUES
+-- Informatique
+(1, 'Programmation Web', 'WEB001', 1, 6, 1, 'HTML, CSS, JavaScript, PHP'),
+-- Mathématiques-Physique
+(2, 'Algèbre Linéaire', 'LMP101', 1, 6, 2, 'Espaces vectoriels, applications linéaires'),
+(2, 'Mécanique du Point', 'LMP102', 1, 6, 3, 'Cinématique, dynamique du point matériel'),
+(2, 'Analyse Réelle', 'LMP103', 1, 6, 2, 'Fonctions réelles, limites, continuité'),
+-- Hydrogéologie
+(3, 'Géologie Générale', 'LHG101', 1, 6, 7, 'Introduction aux sciences de la Terre'),
+(3, 'Hydrologie de Base', 'LHG102', 1, 6, 9, 'Cycle de l eau, bilans hydrologiques'),
+(3, 'Cartographie Géologique', 'LHG103', 1, 4, 7, 'Techniques de cartographie géologique');
 
--- Bâtiment Géologie
-(3, 'Laboratoire Pétrologie', 'BGG-L1', 'laboratoire', 20, 'Microscopes polarisants, échantillons', TRUE),
-(3, 'Salle Cartographie', 'BGG-SC1', 'salle_cours', 25, 'Cartes, tables lumineuses', TRUE),
-
--- Bâtiment Mécanique
-(4, 'Atelier Usinage', 'BGM-A1', 'atelier', 20, 'Tours, fraiseuses, machines-outils', TRUE),
-(4, 'Laboratoire Métrologie', 'BGM-L1', 'laboratoire', 15, 'Instruments de mesure de précision', TRUE),
-
--- Bâtiment Industriel
-(5, 'Laboratoire Automatisme', 'BGI-L1', 'laboratoire', 20, 'Automates, capteurs, actionneurs', TRUE),
-(5, 'Salle Gestion', 'BGI-SG1', 'salle_cours', 30, 'Vidéoprojecteur, tableau blanc', TRUE),
-
--- Amphithéâtre Central
-(6, 'Grand Amphithéâtre', 'AMPHI-A1', 'amphitheatre', 500, 'Écran géant, sonorisation complète', TRUE),
-
--- Bibliothèque
-(7, 'Salle de Lecture', 'BU-SL1', 'bibliotheque', 100, 'Rayonnages, places assises', TRUE);
-
--- 8. Matières par filière et niveau
--- === SCIENCES FONDAMENTALES - Licence ===
-INSERT INTO matiere (filiere_id, nom, code, semestre, volume_horaire, credits, description) VALUES
--- L1 Sciences Fondamentales
-(1, 'Mathématiques Fondamentales', 'MAT101', 1, 60, 6, 'Algèbre linéaire, analyse réelle'),
-(1, 'Physique Générale', 'PHY101', 1, 60, 6, 'Mécanique, thermodynamique'),
-(1, 'Chimie Générale', 'CHI101', 1, 45, 4, 'Structure atomique, liaisons chimiques'),
-(1, 'Informatique Fondamentale', 'INF101', 1, 45, 4, 'Algorithmique, programmation'),
-(1, 'Analyse Mathématique', 'MAT102', 2, 60, 6, 'Calcul différentiel et intégral'),
-(1, 'Physique Ondulatoire', 'PHY102', 2, 60, 6, 'Ondes, optique, physique moderne'),
-
--- L2 Sciences Fondamentales
-(1, 'Algèbre Avancée', 'MAT201', 3, 60, 6, 'Structures algébriques'),
-(1, 'Mécanique Analytique', 'PHY201', 3, 60, 6, 'Lagrangien, Hamiltonien'),
-(1, 'Chimie Analytique', 'CHI201', 3, 45, 4, 'Techniques d analyse chimique'),
-(1, 'Probabilités et Statistiques', 'MAT202', 4, 60, 6, 'Théorie des probabilités'),
-
--- L3 Sciences Fondamentales
-(1, 'Analyse Complexe', 'MAT301', 5, 60, 6, 'Fonctions de variable complexe'),
-(1, 'Physique Quantique', 'PHY301', 5, 60, 6, 'Introduction à la mécanique quantique'),
-(1, 'Projet de Fin d Études', 'PFE301', 6, 120, 12, 'Travail de recherche');
-
--- === GÉNIE CIVIL - Licence ===
-INSERT INTO matiere (filiere_id, nom, code, semestre, volume_horaire, credits, description) VALUES
--- L1 Génie Civil
-(2, 'Mathématiques pour l Ingénieur', 'GCM101', 1, 60, 6, 'Mathématiques appliquées au génie civil'),
-(2, 'Mécanique des Solides', 'GCM102', 1, 60, 6, 'Résistance des matériaux'),
-(2, 'Topographie', 'GCT101', 1, 45, 4, 'Techniques de mesure topographique'),
-(2, 'Mécanique des Fluides', 'GCM103', 2, 60, 6, 'Hydrostatique, hydrodynamique'),
-
--- L2 Génie Civil
-(2, 'Structures Métalliques', 'GCS201', 3, 60, 6, 'Conception des structures en acier'),
-(2, 'Béton Armé', 'GCS202', 3, 60, 6, 'Théorie et calcul du béton armé'),
-(2, 'Géotechnique', 'GCG201', 3, 45, 4, 'Mécanique des sols'),
-
--- L3 Génie Civil
-(2, 'Structures Précontraintes', 'GCS301', 5, 60, 6, 'Précontrainte des structures'),
-(2, 'Projet de Bâtiment', 'GCP301', 6, 120, 12, 'Conception complète d un bâtiment');
-
--- === GÉNIE GÉOLOGIQUE - Licence ===
-INSERT INTO matiere (filiere_id, nom, code, semestre, volume_horaire, credits, description) VALUES
--- L1 Génie Géologique
-(3, 'Géologie Générale', 'GGG101', 1, 60, 6, 'Introduction à la géologie'),
-(3, 'Minéralogie', 'GGM101', 1, 60, 6, 'Étude des minéraux'),
-(3, 'Pétrologie', 'GGP101', 2, 60, 6, 'Étude des roches'),
-
--- L2 Génie Géologique
-(3, 'Géologie Structurale', 'GGG201', 3, 60, 6, 'Structures géologiques'),
-(3, 'Prospection Minière', 'GGP201', 3, 60, 6, 'Techniques de prospection'),
-
--- L3 Génie Géologique
-(3, 'Gîtes Minéraux', 'GGM301', 5, 60, 6, 'Gisements minéraux'),
-(3, 'Projet de Prospection', 'GGP301', 6, 120, 12, 'Projet de fin d études');
-
--- === GÉNIE MÉCANIQUE - Licence ===
-INSERT INTO matiere (filiere_id, nom, code, semestre, volume_horaire, credits, description) VALUES
--- L1 Génie Mécanique
-(4, 'Dessin Industriel', 'GMD101', 1, 60, 6, 'Dessin technique mécanique'),
-(4, 'Métallurgie', 'GMM101', 1, 60, 6, 'Science des matériaux métalliques'),
-(4, 'Thermodynamique', 'GMT101', 1, 60, 6, 'Principes thermodynamiques'),
-
--- L2 Génie Mécanique
-(4, 'Éléments de Machines', 'GME201', 3, 60, 6, 'Conception des éléments mécaniques'),
-(4, 'Usinage', 'GMU201', 3, 60, 6, 'Techniques d usinage'),
-
--- L3 Génie Mécanique
-(4, 'CFAO', 'GMC301', 5, 60, 6, 'Conception Fabrication Assistée'),
-(4, 'Projet de Conception', 'GMP301', 6, 120, 12, 'Projet mécanique');
-
--- === GÉNIE INDUSTRIEL - Licence ===
-INSERT INTO matiere (filiere_id, nom, code, semestre, volume_horaire, credits, description) VALUES
--- L1 Génie Industriel
-(5, 'Économie d Entreprise', 'GIE101', 1, 45, 4, 'Fonctionnement des entreprises'),
-(5, 'Recherche Opérationnelle', 'GIR101', 1, 60, 6, 'Méthodes d optimisation'),
-(5, 'Gestion de Production', 'GIG101', 2, 60, 6, 'Planification de production'),
-
--- L2 Génie Industriel
-(5, 'Logistique', 'GIL201', 3, 60, 6, 'Gestion des flux logistiques'),
-(5, 'Qualité Totale', 'GIQ201', 3, 60, 6, 'Management de la qualité'),
-
--- L3 Génie Industriel
-(5, 'Audit Industriel', 'GIA301', 5, 60, 6, 'Méthodes d audit'),
-(5, 'Projet d Optimisation', 'GIP301', 6, 120, 12, 'Projet d amélioration');
-
--- 9. Cours d'exemple
+-- 9. Cours existants + nouveaux
 INSERT INTO cours (matiere_id, enseignant_id, salle_id, filiere_id, date_debut, date_fin, type_seance, statut, created_by) VALUES
-(1, 2, 1, 1, '2024-11-04 08:00:00', '2024-11-04 09:30:00', 'cours', 'confirme', 1),
-(2, 3, 2, 1, '2024-11-04 10:00:00', '2024-11-04 11:30:00', 'cours', 'confirme', 1),
-(5, 2, 1, 2, '2024-11-04 14:00:00', '2024-11-04 15:30:00', 'cours', 'confirme', 1),
-(8, 5, 6, 3, '2024-11-05 08:00:00', '2024-11-05 09:30:00', 'cours', 'confirme', 1),
-(12, 6, 8, 4, '2024-11-05 10:00:00', '2024-11-05 11:30:00', 'cours', 'confirme', 1);
+-- Cours existants
+(1, 1, 2, 1, '2024-01-15 08:00:00', '2024-01-15 09:30:00', 'cours', 'confirme', 1),
+-- Nouveaux cours
+(2, 2, 2, 2, '2024-11-04 08:00:00', '2024-11-04 09:30:00', 'cours', 'confirme', 1),
+(2, 2, 2, 2, '2024-11-06 08:00:00', '2024-11-06 09:30:00', 'td', 'confirme', 1),
+(3, 3, 2, 2, '2024-11-04 10:00:00', '2024-11-04 11:30:00', 'cours', 'confirme', 1),
+(4, 7, 1, 3, '2024-11-04 14:00:00', '2024-11-04 15:30:00', 'cours', 'confirme', 1),
+(5, 9, 1, 3, '2024-11-05 14:00:00', '2024-11-05 15:30:00', 'cours', 'confirme', 1),
+(6, 7, 2, 3, '2024-11-06 10:00:00', '2024-11-06 11:30:00', 'cours', 'confirme', 1);
 
--- 10. Configuration
+-- 10. Indisponibilités
+INSERT INTO indisponibilite (enseignant_id, date_debut, date_fin, raison, description, statut) VALUES
+(2, '2024-11-05 08:00:00', '2024-11-05 12:00:00', 'formation', 'Formation pédagogique', 'approuvee'),
+(3, '2024-11-06 14:00:00', '2024-11-06 18:00:00', 'congé', 'Congé annuel', 'approuvee'),
+(7, '2024-11-07 08:00:00', '2024-11-07 10:00:00', 'mission', 'Mission terrain', 'approuvee');
+
+-- 11. Notifications
+INSERT INTO notification (utilisateur_id, titre, message, type_notification, lien, lue) VALUES
+(1, 'Système Mis à Jour', 'La base de données a été mise à jour avec les nouvelles filières et enseignants.', 'success', '/dashboard', FALSE),
+(1, 'Nouvelles Filières', 'Les filières Mathématiques-Physique et Hydrogéologie ont été ajoutées.', 'info', '/filiere', FALSE),
+(2, 'Nouveaux Cours', 'De nouveaux cours ont été programmés pour vos matières.', 'info', '/mes-cours', FALSE),
+(4, 'Affectation de Cours', 'Vous êtes maintenant responsable de la matière "Algèbre Linéaire".', 'info', '/emploi-du-temps', FALSE);
+
+-- 12. Configuration
 INSERT INTO configuration (cle, valeur, description) VALUES
 ('heure_debut_cours', '08:00:00', 'Heure de début des cours'),
 ('heure_fin_cours', '18:00:00', 'Heure de fin des cours'),
@@ -400,16 +309,9 @@ INSERT INTO configuration (cle, valeur, description) VALUES
 ('delai_publication', '7', 'Délai de publication en jours'),
 ('email_notification', '1', 'Activer les notifications par email');
 
--- ==================== CRÉATION DES INDEX ====================
-CREATE INDEX idx_cours_dates ON cours(date_debut, date_fin);
-CREATE INDEX idx_cours_enseignant ON cours(enseignant_id, date_debut);
-CREATE INDEX idx_cours_salle ON cours(salle_id, date_debut);
-CREATE INDEX idx_indisponibilite_dates ON indisponibilite(date_debut, date_fin);
-CREATE INDEX idx_utilisateur_email ON utilisateur(email);
-CREATE INDEX idx_publication_annee ON publication_emploi_du_temps(annee_academique, semestre);
-
 -- ==================== CRÉATION DES VUES ====================
-CREATE VIEW vue_emploi_du_temps AS
+
+CREATE OR REPLACE VIEW vue_emploi_du_temps AS
 SELECT 
     c.id,
     c.date_debut,
@@ -418,8 +320,7 @@ SELECT
     c.statut,
     m.nom as matiere_nom,
     m.code as matiere_code,
-    u.nom as enseignant_nom,
-    u.prenom as enseignant_prenom,
+    CONCAT(u.nom, ' ', u.prenom) as enseignant_nom,
     s.nom as salle_nom,
     s.capacite,
     b.nom as batiment_nom,
@@ -438,42 +339,56 @@ JOIN departement d ON f.departement_id = d.id
 JOIN faculte fac ON d.faculte_id = fac.id
 WHERE c.statut != 'annule';
 
--- ==================== CRÉATION DES PROCÉDURES ====================
-DELIMITER //
-CREATE PROCEDURE verifier_conflits_cours(
-    IN p_salle_id INT,
-    IN p_enseignant_id INT,
-    IN p_date_debut DATETIME,
-    IN p_date_fin DATETIME,
-    IN p_cours_id INT
-)
-BEGIN
-    -- Vérifier conflit de salle
-    SELECT COUNT(*) as conflit_salle 
-    FROM cours 
-    WHERE salle_id = p_salle_id 
-    AND ((p_date_debut BETWEEN date_debut AND date_fin) 
-         OR (p_date_fin BETWEEN date_debut AND date_fin)
-         OR (date_debut BETWEEN p_date_debut AND p_date_fin))
-    AND statut != 'annule'
-    AND (p_cours_id IS NULL OR id != p_cours_id);
+CREATE OR REPLACE VIEW vue_emploi_par_niveau AS
+SELECT 
+    c.id,
+    c.date_debut,
+    c.date_fin,
+    c.type_seance,
+    c.statut,
+    m.nom as matiere_nom,
+    m.code as matiere_code,
+    m.semestre,
+    CONCAT(u.nom, ' ', u.prenom) as enseignant_nom,
+    s.nom as salle_nom,
+    b.nom as batiment_nom,
+    f.nom as filiere_nom,
+    f.code as filiere_code,
+    CASE 
+        WHEN m.semestre IN (1,2) THEN 'Niveau 1'
+        WHEN m.semestre IN (3,4) THEN 'Niveau 2' 
+        WHEN m.semestre IN (5,6) THEN 'Niveau 3'
+        ELSE 'Autre'
+    END as niveau,
+    d.nom as departement_nom,
+    fac.nom as faculte_nom
+FROM cours c
+JOIN matiere m ON c.matiere_id = m.id
+JOIN enseignant e ON c.enseignant_id = e.id
+JOIN utilisateur u ON e.utilisateur_id = u.id
+JOIN salle s ON c.salle_id = s.id
+JOIN batiment b ON s.batiment_id = b.id
+JOIN filiere f ON c.filiere_id = f.id
+JOIN departement d ON f.departement_id = d.id
+JOIN faculte fac ON d.faculte_id = fac.id
+WHERE c.statut != 'annule';
 
-    -- Vérifier conflit d'enseignant
-    SELECT COUNT(*) as conflit_enseignant 
-    FROM cours 
-    WHERE enseignant_id = p_enseignant_id 
-    AND ((p_date_debut BETWEEN date_debut AND date_fin) 
-         OR (p_date_fin BETWEEN date_debut AND date_fin)
-         OR (date_debut BETWEEN p_date_debut AND p_date_fin))
-    AND statut != 'annule'
-    AND (p_cours_id IS NULL OR id != p_cours_id);
-END //
-DELIMITER ;
+-- ==================== CRÉATION DES INDEX ====================
 
--- ==================== VÉRIFICATION ====================
-SELECT 'Base de données UPM créée avec succès!' as Status;
+CREATE INDEX idx_cours_dates ON cours(date_debut, date_fin);
+CREATE INDEX idx_cours_enseignant ON cours(enseignant_id, date_debut);
+CREATE INDEX idx_cours_salle ON cours(salle_id, date_debut);
+CREATE INDEX idx_indisponibilite_dates ON indisponibilite(date_debut, date_fin);
+CREATE INDEX idx_utilisateur_email ON utilisateur(email);
+CREATE INDEX idx_publication_annee ON publication_emploi_du_temps(annee_academique, semestre);
 
--- Afficher le résumé des données
+-- ==================== VÉRIFICATION FINALE ====================
+
+SELECT '=== BASE DE DONNÉES UNIVERSITÉ UPM ===' as '';
+SELECT 'Création terminée avec succès!' as Status;
+SELECT '' as '';
+
+SELECT 'RÉSUMÉ DES DONNÉES:' as '';
 SELECT 'Facultés' as Table_Name, COUNT(*) as Count FROM faculte
 UNION ALL SELECT 'Départements', COUNT(*) FROM departement
 UNION ALL SELECT 'Filières', COUNT(*) FROM filiere
@@ -482,4 +397,6 @@ UNION ALL SELECT 'Enseignants', COUNT(*) FROM enseignant
 UNION ALL SELECT 'Bâtiments', COUNT(*) FROM batiment
 UNION ALL SELECT 'Salles', COUNT(*) FROM salle
 UNION ALL SELECT 'Matières', COUNT(*) FROM matiere
-UNION ALL SELECT 'Cours', COUNT(*) FROM cours;
+UNION ALL SELECT 'Cours', COUNT(*) FROM cours
+UNION ALL SELECT 'Indisponibilités', COUNT(*) FROM indisponibilite
+UNION ALL SELECT 'Notifications', COUNT(*) FROM notification;

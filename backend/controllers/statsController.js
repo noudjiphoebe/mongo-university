@@ -1,61 +1,39 @@
-import pool from '../config/database.js';
+const db = require('../config/database');
 
-export const getStats = async (req, res) => {
+exports.getStatistics = async (req, res) => {
   try {
-    const conn = await pool.getConnection();
+    console.log('📊 Chargement des statistiques...');
     
-    // Statistiques des enseignants
-    const teacherStats = await conn.query(`
-      SELECT 
-        e.id,
-        u.nom,
-        u.prenom,
-        COUNT(c.id) as nombre_cours,
-        SUM(TIMESTAMPDIFF(HOUR, c.date_debut, c.date_fin)) as heures_total
-      FROM enseignant e
-      JOIN utilisateur u ON e.utilisateur_id = u.id
-      LEFT JOIN cours c ON e.id = c.enseignant_id 
-        AND c.statut != 'annule' 
-        AND c.date_debut >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-      GROUP BY e.id, u.nom, u.prenom
-      ORDER BY heures_total DESC
-    `);
+    const [
+      [users],
+      [teachers], 
+      [courses],
+      [classrooms],
+      [upcoming]
+    ] = await Promise.all([
+      db.execute('SELECT COUNT(*) as count FROM utilisateur WHERE role = "etudiant"'),
+      db.execute('SELECT COUNT(*) as count FROM enseignant WHERE actif = TRUE'),
+      db.execute('SELECT COUNT(*) as count FROM matiere'),
+      db.execute('SELECT COUNT(*) as count FROM cours WHERE statut = "confirme"'),
+      db.execute('SELECT COUNT(*) as count FROM cours WHERE date_debut > NOW() AND statut = "confirme"')
+    ]);
 
-    // Statistiques des salles
-    const roomStats = await conn.query(`
-      SELECT 
-        s.id,
-        s.nom,
-        b.nom as batiment,
-        COUNT(c.id) as nombre_cours,
-        SUM(TIMESTAMPDIFF(HOUR, c.date_debut, c.date_fin)) as heures_utilisation
-      FROM salle s
-      JOIN batiment b ON s.batiment_id = b.id
-      LEFT JOIN cours c ON s.id = c.salle_id 
-        AND c.statut != 'annule' 
-        AND c.date_debut >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-      GROUP BY s.id, s.nom, b.nom
-      ORDER BY heures_utilisation DESC
-    `);
+    const stats = {
+      totalStudents: users[0].count || 0,
+      totalTeachers: teachers[0].count || 0,
+      totalCourses: courses[0].count || 0,
+      totalClasses: classrooms[0].count || 0,
+      upcomingCourses: upcoming[0].count || 0
+    };
 
-    // Statistiques générales
-    const generalStats = await conn.query(`
-      SELECT 
-        (SELECT COUNT(*) FROM utilisateur WHERE actif = TRUE) as total_utilisateurs,
-        (SELECT COUNT(*) FROM enseignant) as total_enseignants,
-        (SELECT COUNT(*) FROM salle) as total_salles,
-        (SELECT COUNT(*) FROM cours WHERE statut != 'annule' AND date_debut >= CURDATE()) as cours_planifies
-    `);
-
-    conn.release();
-
-    res.json({
-      general: generalStats[0],
-      teachers: teacherStats,
-      rooms: roomStats
-    });
+    console.log('✅ Statistiques chargées:', stats);
+    res.json(stats);
+    
   } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur interne du serveur' });
+    console.error('❌ Erreur statistiques:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors du chargement des statistiques',
+      details: error.message 
+    });
   }
 };
