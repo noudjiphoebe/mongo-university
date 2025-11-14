@@ -13,6 +13,8 @@ import AdminDashboard from './pages/AdminDashboard'
 import EnseignantDashboard from './pages/EnseignantDashboard'
 import EtudiantDashboard from './pages/EtudiantDashboard'
 import Unauthorized from './pages/Unauthorized'
+import AdminUsers from './pages/AdminUsers'
+import AdminStats from './pages/AdminStats'
 import Layout from './components/Layout'
 import './App.css'
 
@@ -63,6 +65,17 @@ function NavigateToRoleDashboard() {
   }
 }
 
+// COMPOSANT SEPARÉ POUR LES ROUTES ADMIN
+function AdminRoutes() {
+  return (
+    <Routes>
+      <Route index element={<AdminDashboard />} />
+      <Route path="utilisateurs" element={<AdminUsers />} />
+      <Route path="statistiques" element={<AdminStats />} />
+    </Routes>
+  )
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -71,15 +84,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         
-        {/* Tableau de bord par rôle - CHEMINS SPÉCIFIQUES */}
+        {/* Tableau de bord admin avec sous-routes - CORRIGÉ */}
         <Route path="/admin/*" element={
           <RoleProtectedRoute allowedRoles={['admin']}>
             <Layout>
-              <AdminDashboard />
+              <AdminRoutes />
             </Layout>
           </RoleProtectedRoute>
         } />
         
+        {/* Les autres routes restent inchangées */}
         <Route path="/enseignant/*" element={
           <RoleProtectedRoute allowedRoles={['enseignant', 'admin']}>
             <Layout>

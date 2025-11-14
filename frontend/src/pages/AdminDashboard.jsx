@@ -35,8 +35,9 @@ function AdminDashboard() {
           <h3>⚙️ Administration</h3>
           <div className="card-links">
             <Link to="/recherche" className="btn btn-primary">Recherche avancée</Link>
-            <button className="btn btn-secondary">Gestion des utilisateurs</button>
-            <button className="btn btn-secondary">Statistiques</button>
+            {/* CORRECTION : Remplacement des boutons par des liens */}
+            <Link to="/admin/utilisateurs" className="btn btn-secondary">Gestion des utilisateurs</Link>
+            <Link to="/admin/statistiques" className="btn btn-secondary">Statistiques</Link>
           </div>
         </div>
       </div>
