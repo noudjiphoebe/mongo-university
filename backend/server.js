@@ -326,6 +326,132 @@ app.get('/api/utilisateurs', authenticateToken, authorize(['admin']), async (req
     }
 });
 
+// CREATE user (admin only) - VERSION CORRIGÉE
+app.post('/api/utilisateurs', authenticateToken, authorize(['admin']), async (req, res) => {
+    let conn;
+    try {
+        const { nom, prenom, email, role, telephone, filiere_id } = req.body;
+
+        console.log('📝 Données reçues:', { nom, prenom, email, role });
+
+        // Validation des données requises
+        if (!nom || !prenom || !email || !role) {
+            return res.status(400).json({ error: 'Nom, prénom, email et rôle sont obligatoires' });
+        }
+
+        conn = await pool.getConnection();
+        
+        // Vérifier si l'email existe - CORRECTION ICI
+        const existingUsers = await conn.query(
+            'SELECT id FROM utilisateur WHERE email = ?', 
+            [email]
+        );
+        
+        console.log('🔍 Vérification email:', email, 'Résultat:', existingUsers);
+        
+        // CORRECTION: Vérifier si existingUsers existe et a une longueur > 0
+        if (existingUsers && existingUsers.length > 0) {
+            await conn.release();
+            return res.status(400).json({ error: 'Email déjà utilisé' });
+        }
+
+        // Créer l'utilisateur (mot de passe par défaut)
+        const defaultPassword = 'password123';
+        const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+        
+        console.log('🔑 Mot de passe hashé créé');
+        
+        const result = await conn.query(
+            `INSERT INTO utilisateur (nom, prenom, email, password, role, telephone, filiere_id) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [nom, prenom, email, hashedPassword, role, telephone, filiere_id || null]
+        );
+
+        await conn.release();
+        
+        console.log('✅ Utilisateur créé avec ID:', result.insertId);
+        
+        res.status(201).json({ 
+            message: 'Utilisateur créé avec succès', 
+            id: result.insertId,
+            user: {
+                nom,
+                prenom, 
+                email,
+                role
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Erreur création utilisateur:', error);
+        if (conn) await conn.release();
+        res.status(500).json({ 
+            error: 'Erreur lors de la création de l\'utilisateur',
+            details: error.message 
+        });
+    }
+});
+
+// UPDATE user (admin only)  
+app.put('/api/utilisateurs/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+    let conn;
+    try {
+        const { id } = req.params;
+        const { nom, prenom, email, role, telephone, filiere_id } = req.body;
+
+        console.log('📝 Modification utilisateur ID:', id, { nom, prenom, email, role });
+
+        conn = await pool.getConnection();
+        
+        await conn.query(
+            `UPDATE utilisateur 
+             SET nom=?, prenom=?, email=?, role=?, telephone=?, filiere_id=?
+             WHERE id=?`,
+            [nom, prenom, email, role, telephone, filiere_id || null, id]
+        );
+
+        await conn.release();
+        
+        console.log('✅ Utilisateur modifié ID:', id);
+        
+        res.json({ message: 'Utilisateur modifié avec succès' });
+        
+    } catch (error) {
+        console.error('❌ Erreur modification utilisateur:', error);
+        if (conn) await conn.release();
+        res.status(500).json({ 
+            error: 'Erreur lors de la modification de l\'utilisateur',
+            details: error.message 
+        });
+    }
+});
+
+// DELETE user (admin only)
+app.delete('/api/utilisateurs/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+    let conn;
+    try {
+        const { id } = req.params;
+        
+        console.log('🗑️ Suppression utilisateur ID:', id);
+        
+        conn = await pool.getConnection();
+        await conn.query('DELETE FROM utilisateur WHERE id = ?', [id]);
+        await conn.release();
+        
+        console.log('✅ Utilisateur supprimé ID:', id);
+        
+        res.json({ message: 'Utilisateur supprimé avec succès' });
+        
+    } catch (error) {
+        console.error('❌ Erreur suppression utilisateur:', error);
+        if (conn) await conn.release();
+        res.status(500).json({ 
+            error: 'Erreur lors de la suppression de l\'utilisateur',
+            details: error.message 
+        });
+    }
+});
+
 // ==================== ROUTES FACULTES ====================
 
 // Get all faculties
